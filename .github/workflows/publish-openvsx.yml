@@ -1,0 +1,16 @@
+name: Publish to Open VSX
+on: workflow_dispatch
+jobs:
+  openvsx:
+    runs-on: ubuntu-latest
+    env:
+      OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npx --yes @vscode/vsce@3 package --no-dependencies -o steadfast.vsix
+        working-directory: vscode
+      - run: npx --yes ovsx@0 create-namespace kokybiskasvetaine -p "$OVSX_PAT" || echo "the namespace may already exist"
+      - run: npx --yes ovsx@0 publish vscode/steadfast.vsix -p "$OVSX_PAT"
